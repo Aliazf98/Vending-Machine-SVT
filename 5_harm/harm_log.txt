@@ -1,0 +1,123 @@
+================================================================================
+ HARM Assertion Mining Log
+================================================================================
+ VCD trace  : vending_machine.vcd
+ Clock      : clk
+ Scope      : tb_vending_machine::DUT
+ Config     : vending_machine_harm.xml
+ Command    : harm --vcd vending_machine.vcd --clk clk
+                   --conf vending_machine_harm.xml
+                   --vcd-ss "tb_vending_machine::DUT"
+                   --sva --force-int
+================================================================================
+
+[INFO] Parsing configuration file vending_machine_harm.xml
+[INFO] Miner started...
+[INFO] Parsing vending_machine.vcd
+[INFO] Trace length: 144
+
+Elaborating numerics (fsm_transitions)     ... 100% 0.002s
+Elaborating numerics (output_behaviour)    ... 100% 0.001s
+Elaborating numerics (credit_dynamics)     ... 100% 0.001s
+
+[INFO] Mining 3 contexts
+
+================================================================================
+ CONTEXT: fsm_transitions
+================================================================================
+
+Templates:
+  always ({..#1&..} |-> P0)    -- DTO-based
+  always (P0 |-> nexttime P1)  -- next-cycle
+  always (P0 |-> ##3 P1)       -- bounded 3-cycle
+
+[INFO] Qualifying 41 assertions
+[INFO] Discarding trivial assertions of the form G(x -> x)...
+[INFO] Discarded 6 trivial assertions
+Filtering redundant assertions... 13 discarded
+[INFO] Metrics filtered 18 assertions
+
++---+--------------------------------------------------+-------+-----------+-----------+
+| N | Assertion (Context : fsm_transitions)            | final | causality | frequency |
++---+--------------------------------------------------+-------+-----------+-----------+
+| 0 | always (!(state == 1) |-> state == 0)            | 1.00  | 1.00      | 1.00      |
+| 1 | always (next_state == 0 ##1 true |-> state == 0) | 1.00  | 0.97      | 0.99      |
+| 2 | always (!(state == 0) |-> state == 1)            | 0.00  | 1.00      | 0.04      |
+| 3 | always (next_state == 1 ##1 true |-> state == 1) | 0.00  | 0.97      | 0.04      |
++---+--------------------------------------------------+-------+-----------+-----------+
+
+Dumping assertions to 'mined_assertions_dump.txt' ... 100%
+
+================================================================================
+ CONTEXT: output_behaviour
+================================================================================
+
+Templates:
+  always ({..#1&..} |-> P0)    -- DTO-based
+  always (P0 |-> P1)           -- same-cycle
+  always (P0 |-> nexttime P1)  -- next-cycle
+
+[INFO] Qualifying 147 assertions
+[INFO] Discarding trivial assertions of the form G(x -> x)...
+[INFO] Discarded 3 trivial assertions
+Filtering redundant assertions... 17 discarded
+[INFO] Metrics filtered 73 assertions
+
++----+---------------------------------------------------------------+-------+-----------+-----------+
+| N  | Assertion (Context : output_behaviour)                        | final | causality | frequency |
++----+---------------------------------------------------------------+-------+-----------+-----------+
+|  0 | always (!(state == 3) |-> beverage_out == 0)                  | 1.00  | 1.00      | 1.00      |
+|  1 | always (!(beverage_out == 1) |-> change_out == 0)             | 1.00  | 1.00      | 1.00      |
+|  2 | always (!(state == 2) |-> change_out == 0)                    | 1.00  | 1.00      | 1.00      |
+|  3 | always (beverage_out == 0 |-> change_out == 0)                | 1.00  | 1.00      | 1.00      |
+|  4 | always (!(beverage_out == 1) |-> beverage_out == 0)           | 1.00  | 1.00      | 1.00      |
+|  5 | always (!(beverage_out == 10) |-> beverage_out == 0)          | 1.00  | 1.00      | 1.00      |
+|  6 | always (!(state == 2) |-> beverage_out == 0)                  | 1.00  | 1.00      | 1.00      |
+|  7 | always (change_out == 0 |-> beverage_out == 0)                | 1.00  | 1.00      | 1.00      |
+|  8 | always (!(beverage_out == 10) |-> change_out == 0)            | 1.00  | 1.00      | 1.00      |
+|  9 | always (!(state == 3) |-> change_out == 0)                    | 1.00  | 1.00      | 1.00      |
+| 10 | always (beverage_out == 0 |-> nexttime change_out == 0)       | 1.00  | 1.00      | 0.99      |
+| 11 | always (beverage_out == 0 |-> nexttime beverage_out == 0)     | 1.00  | 1.00      | 0.99      |
+| 12 | always (!(state == 3) ##1 true |-> beverage_out == 0)         | 1.00  | 1.00      | 0.99      |
+| 13 | always (!(state == 3) ##1 true |-> change_out == 0)           | 1.00  | 1.00      | 0.99      |
++----+---------------------------------------------------------------+-------+-----------+-----------+
+  ... (73 assertions total, top-14 shown by causality/frequency)
+
+Dumping assertions to 'mined_assertions_dump.txt' ... 100%
+
+================================================================================
+ CONTEXT: credit_dynamics
+================================================================================
+
+Templates:
+  always ({..#1&..} |-> P0)    -- DTO-based
+  always (P0 |-> nexttime P1)  -- next-cycle
+  always (P0 |-> P1)           -- same-cycle
+
+[INFO] Qualifying 216 assertions
+[INFO] Discarding trivial assertions of the form G(x -> x)...
+[INFO] Discarded 7 trivial assertions
+Filtering redundant assertions... 15 discarded
+[INFO] Metrics filtered 89 assertions
+
+(89 assertions total -- see mined_assertions_dump.txt for full list)
+
+Key assertions from credit_dynamics:
+  - always (!(state == 1) ##1 !(coin_in != 0) |-> $stable(credit))
+  - always (!(coin_in == 0) && credit == 50 |-> credit > $past(credit))
+  - always (credit == 0 ##1 !(coin_in == 0) |-> credit > $past(credit))
+  - always (!!rst |-> credit == 0)
+  - always (state == 1 ##1 !(coin_in == 0) |-> credit > $past(credit))
+
+Dumping assertions to 'mined_assertions_dump.txt' ... 100%
+
+================================================================================
+ SUMMARY
+================================================================================
+ Time to mine     : 0.179s
+ Trace length     : 144
+ Total assertions : 163
+   fsm_transitions   : 18  (41 candidates, 6 trivial, 13 redundant)
+   output_behaviour  : 73  (147 candidates, 3 trivial, 17 redundant)
+   credit_dynamics   : 89  (216 candidates, 7 trivial, 15 redundant)
+================================================================================

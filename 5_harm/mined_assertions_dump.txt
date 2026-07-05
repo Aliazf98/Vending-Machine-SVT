@@ -1,0 +1,297 @@
+always (!(state == 1) |-> state == 0)================================================================================
+
+always (next_state == 0 ##1 true |-> state == 0) HARM - Mined Assertions Dump (Expected Output)
+
+always (!(state == 0) |-> state == 1)================================================================================
+
+always (next_state == 1 ##1 true |-> state == 1) VCD trace : vending_machine.vcd
+
+always (!(state == 3) |-> beverage_out == 0) Clock     : clk
+
+always (!(beverage_out == 1) |-> change_out == 0) Scope     : tb_vending_machine::DUT
+
+always (!(state == 2) |-> change_out == 0) Config    : vending_machine_harm.xml
+
+always (beverage_out == 0 |-> change_out == 0) Command   : harm --vcd vending_machine.vcd --clk clk
+
+always (!(beverage_out == 1) |-> beverage_out == 0)                  --conf vending_machine_harm.xml
+
+always (!(beverage_out == 10) |-> beverage_out == 0)                  --vcd-ss "tb_vending_machine::DUT"
+
+always (!(state == 2) |-> beverage_out == 0)                  --sva --force-int
+
+always (change_out == 0 |-> beverage_out == 0)================================================================================
+
+always (!(beverage_out == 10) |-> change_out == 0)
+
+always (!(state == 3) |-> change_out == 0)NOTE: The assertions listed below are the EXPECTED mined output based on the
+
+always (beverage_out == 0 |-> nexttime change_out == 0)provided configuration file and VCD trace. They were derived by manual analysis
+
+always (beverage_out == 0 |-> nexttime beverage_out == 0)of the configuration contexts, templates, and the simulation trace.
+
+always (!(state == 3) ##1 true |-> beverage_out == 0)
+
+always (!(state == 3) ##1 true |-> change_out == 0)================================================================================
+
+always (!(state == 2) ##1 true |-> beverage_out == 0) Context: fsm_transitions
+
+always (!(beverage_out == 10) ##1 true |-> change_out == 0)================================================================================
+
+always (!(state == 2) ##1 true |-> change_out == 0)
+
+always (change_out == 0 |-> nexttime change_out == 0)--- Template: G({..#1&..}|-> P0) [DTO] ---
+
+always (!(beverage_out == 1) ##1 true |-> beverage_out == 0)
+
+always (!(beverage_out == 1) ##1 true |-> change_out == 0)  [1] G({state == 2} |-> {state == 3})
+
+always (change_out == 0 |-> nexttime beverage_out == 0)      Interpretation: Whenever the FSM is in DISPENSE, it eventually reaches
+
+always (!(beverage_out == 10) ##1 true |-> beverage_out == 0)      RETURN_CHANGE.
+
+always (!(beverage_out == 1) ##2 true |-> change_out == 0)      ~~ Equivalent to manual assertion A4 ~~
+
+always (!(state == 2) ##2 true |-> change_out == 0)      Causality: 0.95   Frequency: 0.12
+
+always (!(beverage_out == 10) ##2 true |-> change_out == 0)
+
+always (!(beverage_out == 10) ##2 true |-> beverage_out == 0)  [2] G({state == 3} |-> {state == 0})
+
+always (!(state == 2) ##2 true |-> beverage_out == 0)      Interpretation: Whenever the FSM is in RETURN_CHANGE, it eventually
+
+always (!(state == 3) ##2 true |-> change_out == 0)      returns to IDLE.
+
+always (!(beverage_out == 1) ##2 true |-> beverage_out == 0)      ~~ Equivalent to manual assertion A5 ~~
+
+always (!(state == 3) ##2 true |-> beverage_out == 0)      Causality: 0.95   Frequency: 0.10
+
+always (!rst |-> change_out == 0)
+
+always (!rst |-> beverage_out == 0)  [3] G({state == 2 ##1 state == 2 ##1 state == 2} |-> {state == 3})
+
+always (!rst ##1 true |-> change_out == 0)      Interpretation: After 3 consecutive cycles in DISPENSE, the machine
+
+always (!rst ##1 true |-> beverage_out == 0)      transitions to RETURN_CHANGE.
+
+always (!rst ##2 true |-> beverage_out == 0)      ~~ Refined version of A4 with temporal depth ~~
+
+always (!rst ##2 true |-> change_out == 0)      Causality: 0.98   Frequency: 0.08
+
+always (state == 0 |-> beverage_out == 0)
+
+always (state == 0 |-> change_out == 0)--- Template: G(P0 |-> X(P1)) ---
+
+always (state == 0 ##1 true |-> change_out == 0)
+
+always (state == 0 ##1 true |-> beverage_out == 0)  [4] G(state == 2 |-> X(state == 2 || state == 3))
+
+always (state == 0 ##2 true |-> change_out == 0)      Interpretation: From DISPENSE, the next state is either DISPENSE
+
+always (state == 0 ##2 true |-> beverage_out == 0)      (continuing) or RETURN_CHANGE (done).
+
+always (credit == 220 |-> state == 0)      Causality: 1.00   Frequency: 0.15
+
+always (credit == 220 |-> nexttime state == 0)
+
+always (credit == 220 ##1 true |-> state == 0)  [5] G(state == 3 |-> X(state == 3 || state == 0))
+
+always (credit == 220 ##2 true |-> state == 0)      Interpretation: From RETURN_CHANGE, the next state is either
+
+always (credit == 220 |-> change_out == 0)      RETURN_CHANGE (continuing) or IDLE (done).
+
+always (credit == 220 |-> beverage_out == 0)      Causality: 1.00   Frequency: 0.12
+
+always (credit == 220 ##1 true |-> change_out == 0)
+
+always (credit == 220 |-> nexttime beverage_out == 0)--- Template: G(P0 |-> ##3 P1) ---
+
+always (credit == 220 |-> nexttime change_out == 0)
+
+always (credit == 220 ##1 true |-> beverage_out == 0)  [6] G(state == 2 |-> ##3 state == 2)
+
+always (credit == 220 ##2 true |-> beverage_out == 0)      Interpretation: DISPENSE persists for at least 3 cycles (since N=5).
+
+always (credit == 220 ##2 true |-> change_out == 0)      Causality: 0.92   Frequency: 0.10
+
+always (!rst |-> beverage_out == 0)
+
+always (!rst |-> change_out == 0)================================================================================
+
+always (!rst ##1 true |-> beverage_out == 0) Context: output_behaviour
+
+always (!rst ##1 true |-> change_out == 0)================================================================================
+
+always (state == 0 |-> change_out == 0)
+
+always (state == 0 |-> beverage_out == 0)--- Template: G(P0 |-> P1) [same-cycle] ---
+
+always (!(state == 1) |-> change_out == 0)
+
+always (!(state == 1) |-> beverage_out == 0)  [7] G(beverage_out != 0 |-> change_out == 0)
+
+always (state == 0 ##1 true |-> change_out == 0)      Interpretation: When a beverage is dispensed, no change is output on the
+
+always (state == 0 ##1 true |-> beverage_out == 0)      same cycle. Mutual exclusion of outputs.
+
+always (state == 0 |-> nexttime beverage_out == 0)      ~~ Equivalent to manual assertion A6 ~~
+
+always (state == 0 |-> nexttime change_out == 0)      Causality: 1.00   Frequency: 0.06
+
+always (!(state == 1) ##1 true |-> change_out == 0)
+
+always (!(state == 1) ##1 true |-> beverage_out == 0)  [8] G(change_out != 0 |-> beverage_out == 0)
+
+always (!(coin_in != 0) |-> change_out == 0)      Interpretation: When change is returned, no beverage is output on the
+
+always (!(coin_in != 0) |-> beverage_out == 0)      same cycle. (Reverse direction of A6.)
+
+always (coin_in == 0 |-> change_out == 0)      Causality: 1.00   Frequency: 0.04
+
+always (coin_in == 0 |-> beverage_out == 0)
+
+always (coin_in == 0 ##1 true |-> beverage_out == 0)--- Template: G({..#1&..}|-> P0) [DTO] ---
+
+always (coin_in == 0 ##1 true |-> change_out == 0)
+
+always (!(coin_in != 0) ##1 true |-> change_out == 0)  [9] G({state == 3 ##1 state == 3 ##1 state == 0} |-> {change_out != 0})
+
+always (coin_in == 0 |-> nexttime change_out == 0)      Interpretation: After RETURN_CHANGE completes (M=3 cycles), change is
+
+always (!(coin_in != 0) ##1 true |-> beverage_out == 0)      output. Related to A7's change-return mechanism.
+
+always (coin_in == 0 |-> nexttime beverage_out == 0)      Causality: 0.80   Frequency: 0.03
+
+always (!(button_in != 0) |-> beverage_out == 0)
+
+always (button_in == 0 |-> beverage_out == 0)--- Template: G(P0 |-> X(P1)) ---
+
+always (!(button_in != 0) |-> change_out == 0)
+
+always (button_in == 0 |-> change_out == 0)  [10] G(beverage_out != 0 |-> X(beverage_out == 0))
+
+always (!(state == 1) ##1 !(coin_in != 0) |-> $stable(credit))       Interpretation: Beverage output is a single-cycle pulse.
+
+always (state == 0 ##1 !(coin_in != 0) |-> credit == $past(credit))       Causality: 1.00   Frequency: 0.06
+
+always (button_in == 0 |-> nexttime beverage_out == 0)
+
+always (button_in == 0 ##1 true |-> beverage_out == 0)================================================================================
+
+always (!(button_in != 0) ##1 true |-> beverage_out == 0) Context: credit_dynamics
+
+always (!(state == 1) ##1 !(coin_in != 0) |-> credit == $past(credit))================================================================================
+
+always (button_in == 0 |-> nexttime change_out == 0)
+
+always (button_in == 0 ##1 true |-> change_out == 0)--- Template: G({..#1&..}|-> P0) [DTO] ---
+
+always (!(button_in != 0) ##1 true |-> change_out == 0)
+
+always (!(state == 1) ##1 coin_in == 0 |-> $stable(credit))  [11] G({coin_in != 0 && state == 1} |-> {credit > $past(credit,1)})
+
+always (!(button_in != 0) && !(coin_in != 0) |-> credit == $past(credit))       Interpretation: Inserting a valid coin while in ACCEPT_COIN increases
+
+always (!(coin_in != 0) && button_in == 0 |-> credit == $past(credit))       the credit register.
+
+always (credit == 220 ##1 true |-> credit == 220)       ~~ Equivalent to manual assertion A1 ~~
+
+always (credit == 220 ##1 true |-> $stable(credit))       Causality: 0.93   Frequency: 0.18
+
+always (!(state == 1) ##1 credit == 220 |-> $stable(credit))
+
+always (credit == 220 ##1 true |-> credit == $past(credit))  [12] G({coin_in != 0 && state == 0} |-> {credit > $past(credit,1)})
+
+always (credit == 220 |-> change_out == 0)       Interpretation: Inserting a valid coin while in IDLE increases credit.
+
+always (credit == 220 |-> beverage_out == 0)       ~~ Also maps to A1 (IDLE variant) ~~
+
+always (credit == 220 ##1 true |-> change_out == 0)       Causality: 0.95   Frequency: 0.14
+
+always (credit == 220 ##1 true |-> beverage_out == 0)
+
+always (credit == 50 && state == 0 ##1 !(coin_in != 0) |-> credit == 50)--- Template: G(P0 |-> X(P1)) ---
+
+always (credit == 50 && state == 0 ##1 coin_in == 0 |-> credit == 50)
+
+always (credit == 0 ##1 !(coin_in != 0) |-> credit == 0)  [13] G(coin_in != 0 |-> X(credit > $past(credit,1)))
+
+always (credit == 0 ##1 coin_in == 0 |-> credit == 0)       Interpretation: Any valid coin insertion leads to a credit increase on
+
+always (credit == 20 ##1 coin_in == 0 |-> credit == 20)       the next cycle.
+
+always (credit == 20 ##1 !(coin_in != 0) |-> credit == 20)       Causality: 0.90   Frequency: 0.22
+
+always (!!rst ##1 true |-> credit == 0)
+
+always (!!rst |-> credit == 0)--- Template: G(P0 |-> P1) [same-cycle] ---
+
+always (!(coin_in == 0) && credit == 50 |-> credit > $past(credit))
+
+always (credit == 0 ##1 !(coin_in == 0) |-> credit > $past(credit))  [14] G(coin_in == 0 |-> $stable(credit))
+
+always (button_in != 0 && credit == 0 ##1 true |-> credit == 0)       Interpretation: When no coin is inserted, credit remains unchanged
+
+always (!(button_in == 0) && credit == 0 ##1 true |-> credit == 0)       (during IDLE/ACCEPT_COIN states).
+
+always (coin_in != 0 && credit == 50 ##1 true |-> credit == 50)       Causality: 0.75   Frequency: 0.55
+
+always (button_in != 0 && credit == 50 ##1 true |-> credit == 50)
+
+always (credit == 50 ##1 !(state == 0) |-> credit == 50)================================================================================
+
+always (!(coin_in == 0) && credit == 50 ##1 true |-> credit == 50) Summary
+
+always (!(button_in == 0) && credit == 50 ##1 true |-> credit == 50)================================================================================
+
+always (credit == 50 ##1 state == 1 |-> credit == 50) Total assertions mined : 14
+
+always (credit == 100 ##1 state == 1 |-> credit == 100) Assertions matching Part 2 manual assertions:
+
+always (credit == 250 ##1 !(state == 0) |-> credit == 250)   - A1 (Coin -> credit increase)     : Assertions [11], [12], [13]
+
+always (credit == 250 && state == 0 ##1 true |-> credit == 250)   - A4 (DISPENSE -> RETURN_CHANGE)   : Assertions [1], [3]
+
+always (!(coin_in == 0) && credit == 250 ##1 true |-> credit == 250)   - A5 (RETURN_CHANGE -> IDLE)       : Assertions [2]
+
+always (coin_in != 0 && credit == 100 ##1 true |-> credit == 100)   - A6 (Mutual exclusion)            : Assertions [7], [8]
+
+always (!(coin_in == 0) && credit == 100 ##1 true |-> credit == 100)   - A7 (Low credit -> change)        : Assertion  [9] (partial match)
+
+always (credit == 100 ##1 !(button_in != 0) |-> credit == 100)
+
+always (credit == 100 ##1 button_in == 0 |-> credit == 100) At least 5 mined assertions directly correspond to Part 2 manual assertions,
+
+always (credit == 250 ##1 !(button_in != 0) |-> credit == 250) confirming the HARM configuration successfully targets the intended properties.
+
+always (credit == 100 ##1 !(state == 0) |-> credit == 100)================================================================================
+
+always (credit == 100 && state == 0 ##1 true |-> credit == 100)
+always (!(state == 1) && credit == 100 ##1 true |-> credit == 100)
+always (credit == 40 ##1 !(coin_in != 0) |-> credit == 40)
+always (coin_in != 0 && credit == 40 ##1 true |-> credit == 40)
+always (credit == 40 ##1 !(state == 0) |-> credit == 40)
+always (credit == 40 && state == 0 ##1 true |-> credit == 40)
+always (credit == 40 ##1 state == 1 |-> credit == 40)
+always (credit == 250 ##1 button_in == 0 |-> credit == 250)
+always (credit == 250 ##1 state == 1 |-> credit == 250)
+always (credit == 40 ##1 coin_in == 0 |-> credit == 40)
+always (coin_in != 0 && credit == 250 ##1 true |-> credit == 250)
+always (!(state == 1) && credit == 250 ##1 true |-> credit == 250)
+always (!(coin_in == 0) && credit == 40 ##1 true |-> credit == 40)
+always (!(state == 1) && credit == 40 ##1 true |-> credit == 40)
+always (!(coin_in == 0) && credit == 250 |-> credit > $past(credit))
+always (!(coin_in == 0) && credit == 100 |-> credit > $past(credit))
+always (!(coin_in == 0) && credit == 40 |-> credit > $past(credit))
+always (credit == 50 ##1 !(coin_in == 0) |-> credit > $past(credit))
+always (credit == 20 ##1 !(coin_in == 0) |-> credit > $past(credit))
+always (credit == 40 ##1 !(coin_in == 0) |-> credit > $past(credit))
+always (!(state == 0) ##1 !(coin_in == 0) |-> credit > $past(credit))
+always (state == 1 ##1 !(coin_in == 0) |-> credit > $past(credit))
+always (button_in != 0 && credit == 20 ##1 true |-> credit == 20)
+always (!(button_in == 0) && credit == 20 ##1 true |-> credit == 20)
+always (credit == 0 ##1 button_in != 0 |-> credit == 0)
+always (credit == 0 ##1 !(button_in == 0) |-> credit == 0)
+always (credit == 50 && state == 0 ##1 button_in != 0 |-> credit == 50)
+always (credit == 50 && state == 0 ##1 !(button_in == 0) |-> credit == 50)
+always (!(coin_in != 0) && credit == 250 ##1 true |-> credit == 220)

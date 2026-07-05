@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ================================================================== -->
+<!-- HARM Configuration - Vending Machine Assertion Mining (Part 3)     -->
+<!--                                                                    -->
+<!-- Usage:                                                             -->
+<!--   harm --vcd vending_machine.vcd                                   -->
+<!--        --clk clk                                                   -->
+<!--        --conf vending_machine_harm.xml                             -->
+<!--        --vcd-ss tb_vending_machine::DUT                             -->
+<!--        --sva                                                       -->
+<!--        --force-int                                                 -->
+<!--                                                                    -->
+<!-- The --vcd-ss flag selects the DUT scope so that signal names in    -->
+<!-- this config are relative (e.g. "state" not "tbench_top::DUT::...") -->
+<!-- The --force-int flag treats x/z as 0 for cleaner mining.           -->
+<!--                                                                    -->
+<!-- Designed to mine assertions similar to Part 2 manual assertions:   -->
+<!--   A4: DISPENSE (state==2) -> RETURN_CHANGE (state==3)             -->
+<!--   A5: RETURN_CHANGE (state==3) -> IDLE (state==0)                 -->
+<!--   A6: Mutual exclusion of beverage_out and change_out             -->
+<!--   A1: Coin insertion causes credit increase                       -->
+<!--   A7: Low credit after dispense triggers change return            -->
+<!-- ================================================================== -->
+<harm>
+
+    <!-- ============================================================== -->
+    <!-- Context 1: FSM state transitions                               -->
+    <!-- Targets: A4 (DISPENSE->RETURN_CHANGE), A5 (RETURN_CHANGE->IDLE)-->
+    <!-- ============================================================== -->
+    <context name="fsm_transitions">
+
+        <!-- Boolean propositions for each FSM state -->
+        <prop exp="state == 0"  loc="a,c,dt"/>
+        <prop exp="state == 1"  loc="a,c,dt"/>
+        <prop exp="state == 2"  loc="a,c,dt"/>
+        <prop exp="state == 3"  loc="a,c,dt"/>
+
+        <!-- Reset and output propositions for DT splitting -->
+        <prop exp="!rst"                loc="dt"/>
+        <prop exp="beverage_out != 0"   loc="c,dt"/>
+        <prop exp="change_out != 0"     loc="c,dt"/>
+
+        <!-- Numeric signals for clustering in the decision tree -->
+        <numeric clustering="K,10Max,0.01WCSS,==" exp="state"      loc="c,[dt]"/>
+        <numeric clustering="K,10Max,0.01WCSS,==" exp="next_state" loc="c,[dt]"/>
+
+        <!-- Template 1: DTO-based implication (complex antecedent) -->
+        <template dtLimits="5A,3D,2W,-0.1E,U" exp="G({..#1&amp;..}|-> P0)"/>
+
+        <!-- Template 2: Simple next-cycle implication -->
+        <template exp="G(P0 |-> X(P1))"/>
+
+        <!-- Template 3: Bounded liveness up to 3 cycles -->
+        <template exp="G(P0 |-> ##3 P1)"/>
+
+        <!-- Metrics -->
+        <filter name="causality" exp="1-afct/traceLength" threshold="0.4"/>
+        <sort name="causality" exp="1-afct/traceLength"/>
+        <sort name="frequency" exp="atct/traceLength"/>
+    </context>
+
+    <!-- ============================================================== -->
+    <!-- Context 2: Output mutual exclusion and beverage/change logic   -->
+    <!-- Targets: A6 (mutual exclusion), A7 (low credit -> change)     -->
+    <!-- ============================================================== -->
+    <context name="output_behaviour">
+
+        <!-- Boolean propositions about DUT outputs -->
+        <prop exp="beverage_out != 0"   loc="a,c"/>
+        <prop exp="beverage_out == 0"   loc="a,c"/>
+        <prop exp="change_out != 0"     loc="a,c"/>
+        <prop exp="change_out == 0"     loc="a,c"/>
+        <prop exp="beverage_out == 01"  loc="c,dt"/>
+        <prop exp="beverage_out == 10"  loc="c,dt"/>
+
+        <!-- State context for decision tree -->
+        <prop exp="state == 2"  loc="a,dt"/>
+        <prop exp="state == 3"  loc="a,dt"/>
+        <prop exp="state == 0"  loc="c,dt"/>
+        <prop exp="!rst"        loc="dt"/>
+
+        <!-- Credit as numeric for clustering -->
+        <numeric clustering="K,10Max,0.01WCSS,><,==" exp="credit" loc="a,[dt]"/>
+
+        <!-- Template 1: DTO for complex patterns like A7 -->
+        <template dtLimits="4A,3D,2W,-0.1E,U" exp="G({..#1&amp;..}|-> P0)"/>
+
+        <!-- Template 2: Same-cycle implication (for A6 mutual exclusion) -->
+        <template exp="G(P0 |-> P1)"/>
+
+        <!-- Template 3: Next-cycle implication -->
+        <template exp="G(P0 |-> X(P1))"/>
+
+        <!-- Metrics -->
+        <filter name="causality" exp="1-afct/traceLength" threshold="0.4"/>
+        <sort name="causality" exp="1-afct/traceLength"/>
+        <sort name="frequency" exp="atct/traceLength"/>
+    </context>
+
+    <!-- ============================================================== -->
+    <!-- Context 3: Coin/credit dynamics                                -->
+    <!-- Targets: A1 (coin -> credit increase), credit invariants       -->
+    <!-- ============================================================== -->
+    <context name="credit_dynamics">
+
+        <!-- Boolean propositions about coins and state -->
+        <prop exp="coin_in != 0"    loc="a,dt"/>
+        <prop exp="coin_in == 0"    loc="a,dt"/>
+        <prop exp="button_in != 0"  loc="a,dt"/>
+        <prop exp="button_in == 0"  loc="a,dt"/>
+        <prop exp="state == 0"      loc="a,dt"/>
+        <prop exp="state == 1"      loc="a,dt"/>
+        <prop exp="!rst"            loc="dt"/>
+
+        <!-- Credit as numeric in consequent -->
+        <numeric clustering="K,10Max,0.01WCSS,><,==" exp="credit" loc="c,[dt]"/>
+
+        <!-- Temporal propositions using $past for credit changes -->
+        <prop exp="credit > $past(credit,1)"   loc="c"/>
+        <prop exp="credit == $past(credit,1)"  loc="c"/>
+        <prop exp="$stable(credit)"            loc="c"/>
+        <prop exp="beverage_out == 0"          loc="c"/>
+        <prop exp="change_out == 0"            loc="c"/>
+
+        <!-- Template 1: DTO with sequence operators -->
+        <template dtLimits="4A,2D,2W,-0.1E,U" exp="G({..#1&amp;..}|-> P0)"/>
+
+        <!-- Template 2: Simple 1-cycle implication -->
+        <template exp="G(P0 |-> X(P1))"/>
+
+        <!-- Template 3: Same-cycle implication -->
+        <template exp="G(P0 |-> P1)"/>
+
+        <!-- Metrics -->
+        <filter name="causality" exp="1-afct/traceLength" threshold="0.3"/>
+        <sort name="causality" exp="1-afct/traceLength"/>
+        <sort name="frequency" exp="atct/traceLength"/>
+    </context>
+
+</harm>
