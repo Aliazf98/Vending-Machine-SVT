@@ -2,44 +2,21 @@
 
 SystemVerilog verification project for the **System Verification and Testing** course.
 
-This repository presents a complete verification flow for a vending machine RTL design. The project combines directed testing, constrained-random verification, SystemVerilog Assertions, contingency-table based assertion analysis, VCD waveform inspection, and HARM-based assertion mining.
+This repository presents a complete verification flow for a vending machine RTL design. The project includes directed testing, constrained-random verification, SystemVerilog Assertions, contingency-table based assertion analysis, VCD waveform inspection, and HARM-based assertion mining.
 
 ## Project Goal
 
-The goal of this project is to verify the functional correctness of a vending machine finite-state machine and to analyze its behavior using both manual and mined assertions.
+The goal of this project is to verify the functional correctness of a vending machine finite-state machine and analyze its behavior using both manual and mined assertions.
 
 The vending machine accepts coins, accumulates credit, dispenses beverages, and returns change when the remaining credit is lower than the minimum beverage price.
 
-## Verification Engineering Approach
+## AI Engineering Perspective
 
-This project follows a structured verification workflow:
+From an AI engineering perspective, this project can be seen as a small verification pipeline based on structured input generation, trace analysis, rule checking, and property mining.
 
-1. RTL design of the vending machine FSM
-2. Directed testbench for deterministic scenarios
-3. Constrained-random testbench for wider input-space exploration
-4. Scoreboard-based output checking
-5. Manual SystemVerilog Assertions for safety and temporal properties
-6. Non-vacuous assertion analysis using contingency tables
-7. VCD trace generation and waveform inspection
-8. HARM assertion mining from simulation traces
-9. Comparison between manual assertions and mined properties
+The RTL design is the system under test. The testbenches generate input data, the monitor observes the system behavior, the scoreboard evaluates correctness, and assertions define formal temporal rules. The VCD trace acts as time-series execution data, while HARM mines behavioral properties from this trace.
 
-## AI Engineer Perspective
-
-From an AI engineering perspective, this project is organized as a small but complete verification pipeline.
-
-The workflow resembles a data-driven validation system:
-
-- The RTL design is the system under test.
-- Testbenches generate structured and randomized input data.
-- The monitor observes system behavior.
-- The scoreboard evaluates correctness.
-- Assertions act as formal rules over time-series signals.
-- VCD traces provide temporal execution data.
-- HARM mines behavioral properties from traces.
-- Manual and mined assertions are compared to identify meaningful invariants.
-
-This approach connects classical hardware verification with ideas commonly used in AI and data-driven engineering, such as automated pattern discovery, trace-based learning, rule extraction, and validation against expected behavior.
+This connects classical hardware verification with data-driven engineering concepts such as automated pattern discovery, rule extraction, behavioral validation, and comparison between expected and mined properties.
 
 ## Repository Structure
 
@@ -75,3 +52,152 @@ This approach connects classical hardware verification with ideas commonly used 
     ├── run_simple_tb.sh
     ├── run_cr_tb.sh
     └── run_harm.sh
+```
+
+## RTL Design
+
+The vending machine is implemented as a finite-state machine with four main states:
+
+```text
+IDLE
+ACCEPT_COIN
+DISPENSE
+RETURN_CHANGE
+```
+
+The design supports:
+
+- coin insertion
+- credit accumulation
+- beverage selection
+- beverage dispensing
+- automatic change return
+- invalid input handling
+
+## Directed Testbench
+
+The directed testbench validates known scenarios, including:
+
+- valid water purchase
+- valid soda purchase
+- insufficient credit
+- multiple purchases using one credit balance
+- invalid coin input
+- button press without credit
+- automatic change return
+
+This testbench is useful for checking expected behavior in controlled conditions.
+
+## Constrained-Random Testbench
+
+The constrained-random environment uses a class-based SystemVerilog architecture:
+
+```text
+Generator -> Driver -> DUT -> Monitor -> Scoreboard
+```
+
+The generator creates randomized transactions with constraints and biased distributions. The driver applies the transactions to the DUT, the monitor observes outputs, and the scoreboard checks whether the observed behavior is correct.
+
+## Assertion-Based Verification
+
+Manual SystemVerilog Assertions are used to verify important safety and temporal properties, including:
+
+- coin insertion increases credit
+- valid selection eventually produces a beverage
+- insufficient credit does not trigger dispensing
+- dispense state transitions correctly
+- return-change state returns to idle
+- beverage and change are never active at the same time
+- low remaining credit triggers change return
+
+## Contingency Table Analysis
+
+The assertion framework records whether each assertion was triggered meaningfully or passed vacuously.
+
+The table tracks:
+
+```text
+ATCT: Antecedent True, Consequent True
+ATCF: Antecedent True, Consequent False
+VAC : Vacuous pass
+```
+
+This is important because an assertion can pass simply because its condition was never activated. The contingency table helps measure real assertion activation and fault coverage.
+
+## Main Results
+
+The constrained-random simulation completed successfully.
+
+```text
+Scoreboard errors: 0
+Beverages dispensed: 46
+Change events: 10
+Assertions triggered non-vacuously: 5 / 7
+Fault coverage: 71%
+```
+
+These results show that the vending machine behaved correctly for the tested scenarios. The non-vacuous assertion analysis also shows which properties were meaningfully exercised and which properties would need stronger stimulus generation.
+
+## HARM Assertion Mining
+
+HARM was used to mine temporal assertions from the generated VCD trace.
+
+```text
+Trace length: 144
+Total mined assertions: 163
+Mining time: 0.179 seconds
+```
+
+The mined assertions captured important behavioral patterns related to:
+
+- credit update behavior
+- reset behavior
+- FSM state behavior
+- output mutual exclusion
+- signal stability
+
+The mined assertions were compared with the manually written SystemVerilog Assertions to evaluate how well trace-based mining can recover expected design properties.
+
+## How to Run
+
+Run the simple directed testbench:
+
+```bash
+cd 8_scripts
+./run_simple_tb.sh
+```
+
+Run the constrained-random testbench with assertions:
+
+```bash
+cd 8_scripts
+./run_cr_tb.sh
+```
+
+Run HARM assertion mining:
+
+```bash
+cd 8_scripts
+./run_harm.sh
+```
+
+## Tools Used
+
+- SystemVerilog
+- Icarus Verilog
+- ModelSim / QuestaSim
+- Surfer waveform viewer
+- HARM assertion mining tool
+- Git and GitHub
+
+ModelSim or QuestaSim is recommended for full SystemVerilog class and assertion support.
+
+## Report
+
+The full project report is available here:
+
+```text
+7_report/report.md
+```
+
+The report includes the RTL design explanation, testbench architecture, assertion design, contingency table analysis, HARM mining results, and screenshots.
